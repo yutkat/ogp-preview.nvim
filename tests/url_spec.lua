@@ -1,0 +1,120 @@
+local url = require("ogp-preview.url")
+
+describe("url", function()
+	describe("extract_github_url", function()
+		it("should extract full https URL", function()
+			local result = url.extract_github_url("https://github.com/neovim/neovim")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should extract URL without protocol", function()
+			local result = url.extract_github_url("github.com/neovim/neovim")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should extract owner/repo format", function()
+			local result = url.extract_github_url("neovim/neovim")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should strip pull request path", function()
+			local result = url.extract_github_url("https://github.com/neovim/neovim/pull/123")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should strip issues path", function()
+			local result = url.extract_github_url("https://github.com/neovim/neovim/issues/456")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should strip blob path", function()
+			local result = url.extract_github_url("https://github.com/neovim/neovim/blob/master/README.md")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should strip tree path", function()
+			local result = url.extract_github_url("https://github.com/neovim/neovim/tree/master/src")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should strip query parameters", function()
+			local result = url.extract_github_url("https://github.com/neovim/neovim?tab=readme")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should strip hash fragments", function()
+			local result = url.extract_github_url("https://github.com/neovim/neovim#installation")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should clean surrounding brackets", function()
+			local result = url.extract_github_url("[https://github.com/neovim/neovim]")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should clean surrounding parentheses", function()
+			local result = url.extract_github_url("(https://github.com/neovim/neovim)")
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should clean surrounding quotes", function()
+			local result = url.extract_github_url('"https://github.com/neovim/neovim"')
+			assert.equals("https://github.com/neovim/neovim", result)
+		end)
+
+		it("should return nil for reserved paths", function()
+			local result = url.extract_github_url("explore/topics")
+			assert.is_nil(result)
+		end)
+
+		it("should return nil for empty string", function()
+			local result = url.extract_github_url("")
+			assert.is_nil(result)
+		end)
+
+		it("should return nil for nil input", function()
+			local result = url.extract_github_url(nil)
+			assert.is_nil(result)
+		end)
+
+		it("should handle repos with dots", function()
+			local result = url.extract_github_url("https://github.com/foo/bar.nvim")
+			assert.equals("https://github.com/foo/bar.nvim", result)
+		end)
+
+		it("should handle repos with hyphens", function()
+			local result = url.extract_github_url("https://github.com/foo-bar/baz-qux")
+			assert.equals("https://github.com/foo-bar/baz-qux", result)
+		end)
+
+		it("should handle repos with underscores", function()
+			local result = url.extract_github_url("https://github.com/foo_bar/baz_qux")
+			assert.equals("https://github.com/foo_bar/baz_qux", result)
+		end)
+
+		it("should handle lazy.nvim style plugin names (owner/repo.nvim)", function()
+			local result = url.extract_github_url("folke/lazy.nvim")
+			assert.equals("https://github.com/folke/lazy.nvim", result)
+		end)
+
+		it("should handle lazy.nvim style plugin names with quotes", function()
+			local result = url.extract_github_url('"nvim-treesitter/nvim-treesitter"')
+			assert.equals("https://github.com/nvim-treesitter/nvim-treesitter", result)
+		end)
+
+		it("should handle lazy.nvim style plugin names with braces", function()
+			local result = url.extract_github_url("{neovim/nvim-lspconfig}")
+			assert.equals("https://github.com/neovim/nvim-lspconfig", result)
+		end)
+	end)
+
+	describe("is_github_url", function()
+		it("should return true for valid URL", function()
+			assert.is_true(url.is_github_url("https://github.com/neovim/neovim"))
+		end)
+
+		it("should return false for invalid input", function()
+			assert.is_false(url.is_github_url("not a url"))
+		end)
+	end)
+end)
