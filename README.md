@@ -2,6 +2,8 @@
 
 Neovim plugin to preview GitHub repository OGP (Open Graph Protocol) images using Sixel graphics.
 
+<img width="965" height="689" alt="Image" src="https://github.com/user-attachments/assets/f445485c-8e08-4d38-9a41-8716626bc2b7" />
+
 ## Requirements
 
 - Neovim with LuaJIT (for FFI support)
